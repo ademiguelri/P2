@@ -1,0 +1,13 @@
+services:
+  timescale:
+    image: timescale/timescaledb:latest-pg14
+    ports: 
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+
+  grafana:
+    image: grafana/grafana-enterprise:latest
+    ports:
+      - 3000:3000
+    user: '104'
