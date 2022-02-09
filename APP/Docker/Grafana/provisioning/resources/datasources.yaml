@@ -1,0 +1,17 @@
+datasources:
+  - name: Postgres
+    type: postgres
+    orgId: 1
+    url: 172.18.0.1:5432
+    password: password
+    user: postgres
+    database: test
+    editable: true
+    isDefault: true
+    jsonData:
+      sslmode: 'disable'
+      maxOpenConns: 0
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+      postgresVersion: 509
+      timescaledb: true
