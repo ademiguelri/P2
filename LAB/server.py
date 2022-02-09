@@ -25,10 +25,10 @@ def start_server(stateMachine, count):
     temp_max = param.add_variable('ns=2;s="V1_Tmax"', "Temperature max", 0)
     temp_min = param.add_variable('ns=2;s="V1_Tmin"', "Temperature min", 0)
 
-    # therm_id.set_writable()
-    # temp.set_writable()
-    # time.set_writable()
-    # state.set_writable()
+    therm_id.set_writable()
+    temp.set_writable()
+    timeValue.set_writable()
+    state.set_writable()
     temp_max.set_writable()
     temp_min.set_writable()
 
