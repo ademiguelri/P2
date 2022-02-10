@@ -9,6 +9,8 @@ query_create_table = "CREATE TABLE therm (id VARCHAR (10), datetime TIMESTAMP, t
 query_create_hypertable = "SELECT create_hypertable('therm', 'datetime');"
 drop_table = "DROP TABLE therm;"
 
+THERM_COP = 0
+
 def start_client():
     client = Client(config.URL)
     client.connect()
@@ -26,22 +28,23 @@ def start_client():
     finally:
         conn.commit()
 
-        while True:
+    while True:
 
-            id = client.get_node('ns=2;s="V1_Id"')
-            temp = client.get_node('ns=2;s="V1_Te"')
-            timeValue = client.get_node('ns=2;s="V1_Ti"')
-            state = client.get_node('ns=2;s="V1_St"')
-            temp_max = client.get_node('ns=2;s="V1_Tmax"')
-            temp_min = client.get_node('ns=2;s="V1_Tmin"')
-
+        for i in range(3):
+            id = client.get_node('ns=2;s="V{}_Id"'.format(i+1))
+            temp = client.get_node('ns=2;s="V{}_Te"'.format(i+1))
+            timeValue = client.get_node('ns=2;s="V{}_Ti"'.format(i+1))
+            state = client.get_node('ns=2;s="V{}_St"'.format(i+1))
+            temp_max = client.get_node('ns=2;s="V{}_Tmax"'.format(i+1))
+            temp_min = client.get_node('ns=2;s="V{}_Tmin"'.format(i+1))
+        
             print("Client: "+ str(id.get_value()), str(temp.get_value()), str(timeValue.get_value()), str(state.get_value()))
             #insert thermostat value to the database
             insert_value(id.get_value(), temp.get_value(), state.get_value())
-                
-            time.sleep(config.client_refresh)
+            
+        time.sleep(config.client_refresh)
 
-        cursor.close()
+        # cursor.close()
 
 
 def insert_value(id, temp, state):
