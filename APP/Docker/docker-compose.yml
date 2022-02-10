@@ -7,7 +7,11 @@ services:
       - POSTGRES_PASSWORD=password
 
   grafana:
-    image: grafana/grafana-enterprise:latest
+    build:
+      context: ./Grafana
+      dockerfile: dockerfile
     ports:
       - 3000:3000
     user: '104'
+    volumes:
+      - ./Grafana/provisioning:/etc/grafana/provisioning

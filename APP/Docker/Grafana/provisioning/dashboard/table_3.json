@@ -1,0 +1,80 @@
+{
+    "id": 4,
+    "gridPos": {
+      "h": 9,
+      "w": 12,
+      "x": 0,
+      "y": 18
+    },
+    "type": "table",
+    "title": "Thermostat 3 table",
+    "pluginVersion": "8.4.0-beta1",
+    "fieldConfig": {
+      "defaults": {
+        "custom": {
+          "align": "auto",
+          "displayMode": "auto"
+        },
+        "mappings": [],
+        "thresholds": {
+          "mode": "absolute",
+          "steps": [
+            {
+              "value": null,
+              "color": "green"
+            },
+            {
+              "value": 80,
+              "color": "red"
+            }
+          ]
+        }
+      },
+      "overrides": []
+    },
+    "options": {
+      "showHeader": true,
+      "footer": {
+        "show": false,
+        "reducer": [
+          "sum"
+        ],
+        "fields": ""
+      }
+    },
+    "targets": [
+      {
+        "datasource": {
+          "type": "postgres",
+          "uid": "LDihrfanz"
+        },
+        "format": "table",
+        "group": [],
+        "metricColumn": "none",
+        "rawQuery": true,
+        "rawSql": "SELECT\r\n  datetime AS \"time\",\r\n  temp,\r\n  state,\r\n  id\r\nFROM therm\r\nWHERE id = 'TH3'\r\nORDER BY datetime desc",
+        "refId": "A",
+        "select": [
+          [
+            {
+              "params": [
+                "temp"
+              ],
+              "type": "column"
+            }
+          ]
+        ],
+        "table": "therm",
+        "timeColumn": "datetime",
+        "timeColumnType": "timestamp",
+        "where": [
+          {
+            "name": "$__timeFilter",
+            "params": [],
+            "type": "macro"
+          }
+        ]
+      }
+    ],
+    "datasource": null
+  }
