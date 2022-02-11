@@ -4,7 +4,7 @@ datasources:
   - name: Postgres
     type: postgres
     access: proxy
-    url: 172.18.0.1:5432
+    url: 192.168.16.1:5432
     database: test
     user: postgres
     secureJsonData:
@@ -14,5 +14,5 @@ datasources:
       maxOpenConns: 0
       maxIdleConns: 2
       connMaxLifetime: 14400
-      postgresVersion: 1401
+      postgresVersion: 1200
       timescaledb: true
