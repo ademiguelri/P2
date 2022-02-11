@@ -8,11 +8,11 @@ services:
 
   grafana:
     build:
-      context: ./Grafana
+      context: ./grafana
       dockerfile: dockerfile
     ports:
       - 3000:3000
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
     user: '104'
     
