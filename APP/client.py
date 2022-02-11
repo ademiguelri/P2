@@ -18,15 +18,21 @@ def start_client():
 
     with psycopg2.connect(CONNECTION) as conn:
         cursor = conn.cursor()
-    try:
         cursor.execute(query_create_table)
         conn.commit()
         cursor.execute(query_create_hypertable)
         conn.commit()
-    except:
-        cursor.execute(drop_table)
-    finally:
         conn.commit()
+    # try:
+    #     cursor.execute(drop_table)
+    # except Exception as ex:
+    #     print(ex)
+    # finally:
+    #     cursor.execute(query_create_table)
+    #     conn.commit()
+    #     cursor.execute(query_create_hypertable)
+    #     conn.commit()
+    #     conn.commit()
 
     while True:
 
