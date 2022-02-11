@@ -2,7 +2,7 @@ from opcua import Server
 from random import randint
 import datetime
 import time
-import Control.config as config
+import control.config as config
 import thermostat
 
 CONNECTION_FASE  = 0

@@ -12,6 +12,7 @@ services:
       dockerfile: dockerfile
     ports:
       - 3000:3000
-    user: '104'
     volumes:
-      - ./Grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    user: '104'
+    

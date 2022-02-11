@@ -5,7 +5,7 @@ datasources:
     database: test
     user: postgres
     secureJsonData:
-      password: 'password'
+      password: password
     jsonData:
       sslmode: 'disable'
       maxOpenConns: 0

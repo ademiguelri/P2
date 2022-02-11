@@ -1,10 +1,10 @@
 from warnings import catch_warnings
-import Control.stateMachine as stateMachine
+import control.stateMachine as stateMachine
 import server
 import random
 import time
 from threading import Thread
-import Control.config as config
+import control.config as config
 
 
 def main():

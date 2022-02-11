@@ -1,6 +1,6 @@
 from opcua import Client
 import time
-import Docker.config as config
+import docker.config as config
 from warnings import catch_warnings;
 import psycopg2
 
