@@ -3,6 +3,7 @@ import control.stateMachine as stateMachine
 import server
 import random
 import time
+import json
 from threading import Thread
 import control.config as config
 
@@ -22,6 +23,18 @@ def main():
         thermostat = stateMachine.thermostat(i+1)
         #power on the thermostat
         thermostat.power = 1
+
+        a_file = open("lab/control/th{}.json".format(i+1), "r")
+        json_object = json.load(a_file)
+        a_file.close()
+
+        json_object["power"] = 1
+        th_file = open("lab/control/th{}.json", "w")
+        json.dump(json_object, th_file)
+        th_file.close()
+
+
+
         thermostat_list.append(thermostat)
         comp = target_comp()
         thermo_target.append(comp)
