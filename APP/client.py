@@ -42,9 +42,11 @@ def start_client():
             temp_max = client.get_node('ns=2;s="V{}_Tmax"'.format(i+1))
             temp_min = client.get_node('ns=2;s="V{}_Tmin"'.format(i+1))
             target = client.get_node('ns=2;s="V{}_Tar"'.format(i+1))
-            if COUNT[i] % 120 == 0:
-                target.set_value(random.choice(TARGET_LIST))
-                COUNT[i] = 0
+            
+            if config.th_selection == i+1:
+                target.set_value(config.target)
+                config.th_selection = -1
+            
         
             print("Client: "+ str(id.get_value()), str(temp.get_value()), str(state.get_value()))
             #insert thermostat value to the database

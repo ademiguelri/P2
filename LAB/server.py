@@ -47,7 +47,6 @@ def start_server(stateMachine, count):
             STATE = stateMachine[i].state
             TEMP_MAX = stateMachine[i].temp_max
             TEMP_MIN = stateMachine[i].temp_min
-            #TARGET = stateMachine[i].target
 
             var_list[i].therm_id.set_value(ID)
             var_list[i].temp.set_value(TEMP)
