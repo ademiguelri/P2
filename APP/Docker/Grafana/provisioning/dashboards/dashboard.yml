@@ -4,6 +4,7 @@ providers:
   - name: 'Thermostats'
     folder: 'Climatizadores'
     type: file
+    disableDeletion: true
     updateIntervalSeconds: 5
     allowUiUpdates: true
     options:

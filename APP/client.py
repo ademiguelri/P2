@@ -18,6 +18,7 @@ def start_client():
 
     with psycopg2.connect(CONNECTION) as conn:
         cursor = conn.cursor()
+        cursor.execute(drop_table)
         cursor.execute(query_create_table)
         conn.commit()
         cursor.execute(query_create_hypertable)

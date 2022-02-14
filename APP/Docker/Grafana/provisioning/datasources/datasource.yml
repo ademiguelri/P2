@@ -3,7 +3,7 @@ apiVersion: 1
 datasources:
   - name: Postgres
     type: postgres
-    url: 192.168.224.1:5432
+    url: 172.18.0.1:5432
     database: test
     user: postgres
     editable: true

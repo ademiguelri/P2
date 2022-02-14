@@ -6,6 +6,8 @@ services:
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=test
+    networks:
+      - gateway
 
   grafana:
     build:
@@ -16,4 +18,9 @@ services:
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
     user: '104'
+    networks:
+      - gateway
+
+networks:
+  gateway: {}
     
