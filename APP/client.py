@@ -11,7 +11,7 @@ query_create_table = "CREATE TABLE therm (id VARCHAR (10), datetime TIMESTAMP, t
 query_create_hypertable = "SELECT create_hypertable('therm', 'datetime');"
 drop_table = "DROP TABLE therm;"
 
-def start_client():
+def start_client(count):
     client = Client(config.URL)
     client.connect()
     print("Client connected")
@@ -25,7 +25,7 @@ def start_client():
         conn.commit()
         conn.commit()
     
-    for j in range(3):
+    for j in range(int(count)):
 
         th_file = open("app/docker/th{}.json".format(j+1), "r")
         json_object = json.load(th_file)
@@ -39,7 +39,7 @@ def start_client():
 
     while True:
 
-        for i in range(3):
+        for i in range(int(count)):
             id = client.get_node('ns=2;s="V{}_Id"'.format(i+1))
             temp = client.get_node('ns=2;s="V{}_Te"'.format(i+1))
             timeValue = client.get_node('ns=2;s="V{}_Ti"'.format(i+1))

@@ -12,13 +12,13 @@ class target_comp:
         self.actual_target = 20
         self.new_target = 20
 
-def start_thermostat():
+def start_thermostat(count):
 
 #    Get value to crate thermostat objects
     thermostat_list = []
     thermo_target = []
 
-    for i in range(config.THERM_NUM):
+    for i in range(int(count)):
 #       Create the thermostat
         thermostat = stateMachine.thermostat(i+1)
         #power on the thermostat
@@ -37,17 +37,17 @@ def start_thermostat():
         thermo_target.append(comp)
         
 
-    print("---{} Thermostats created---".format(config.THERM_NUM))
+    print("---{} Thermostats created---".format(int(count)))
 
-#   Start OPC UA server and client 
-    server_thread = Thread(target=server.start_server, args=[thermostat_list, config.THERM_NUM])
+#   Start OPC UA server
+    server_thread = Thread(target=server.start_server, args=[thermostat_list, int(count)])
     server_thread.start()
-    time.sleep(5)
+
 #   Switch on the thermostat
     while True:
         
         #Switch the thermostats
-        for j in range(config.THERM_NUM):
+        for j in range(int(count)):
 
             #Check JSON file
             th_file = open("lab/control/th{}.json".format(j+1), "r")
