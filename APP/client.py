@@ -11,13 +11,6 @@ query_create_table = "CREATE TABLE therm (id VARCHAR (10), datetime TIMESTAMP, t
 query_create_hypertable = "SELECT create_hypertable('therm', 'datetime');"
 drop_table = "DROP TABLE therm;"
 
-THERM_COP = 0
-COUNT = []
-for j in range(3):
-    COUNT.append(j*25)
-
-TARGET_LIST = [16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
-
 def start_client():
     client = Client(config.URL)
     client.connect()
@@ -64,7 +57,6 @@ def start_client():
             print("Client: "+ str(id.get_value()), str(temp.get_value()), str(state.get_value()))
             #insert thermostat value to the database
             insert_value(id.get_value(), temp.get_value(), state.get_value(), target.get_value())
-            COUNT[i] += 1
             
         time.sleep(config.client_refresh)
 

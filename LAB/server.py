@@ -5,7 +5,6 @@ import time
 import control.config as config
 import thermostat
 
-CONNECTION_FASE  = 0
 therm_list = []
 
 def start_server(stateMachine, count):
