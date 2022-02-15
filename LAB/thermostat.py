@@ -12,7 +12,7 @@ class target_comp:
         self.actual_target = 20
         self.new_target = 20
 
-def main():
+def start_thermostat():
 
 #    Get value to crate thermostat objects
     thermostat_list = []
@@ -22,18 +22,15 @@ def main():
 #       Create the thermostat
         thermostat = stateMachine.thermostat(i+1)
         #power on the thermostat
-        thermostat.power = 1
-
-        a_file = open("lab/control/th{}.json".format(i+1), "r")
-        json_object = json.load(a_file)
-        a_file.close()
-
-        json_object["power"] = 1
-        th_file = open("lab/control/th{}.json", "w")
-        json.dump(json_object, th_file)
+        th_file = open("lab/control/th{}.json".format(i+1), "r")
+        json_object = json.load(th_file)
+        print(json_object)
         th_file.close()
 
-
+        json_object["power"] = 1
+        th_file = open("lab/control/th{}.json".format(i+1), "w")
+        json.dump(json_object, th_file)
+        th_file.close()
 
         thermostat_list.append(thermostat)
         comp = target_comp()
@@ -49,59 +46,58 @@ def main():
 #   Switch on the thermostat
     while True:
         
-        if config.th_power_off == -1:
-            #Switch the thermostats
-            for j in range(config.THERM_NUM):
+        #Switch the thermostats
+        for j in range(config.THERM_NUM):
 
-                if thermostat_list[j].power == 1:
-                    #If the machine start working again from off state
-                    if thermostat_list[j].state == 'off':
-                        if thermostat_list[j].temp < thermo_target[j].actual_target:
-                            thermostat_list[j].status = 'warming'
-                        else:
-                            thermostat_list[j].status = 'cooling'
-                        thermostat_list[j].set_state('power_on')
+            #Check JSON file
+            th_file = open("lab/control/th{}.json".format(j+1), "r")
+            json_object = json.load(th_file)
+            th_file.close()
+            print(json_object["power"])
+            
+            #power == 1 -> on / power == 0 -> off
+            if json_object["power"] == 1:
+                #If the machine start working again from off state
+                if thermostat_list[j].state == 'off':
+                    if thermostat_list[j].temp < thermo_target[j].actual_target:
+                        thermostat_list[j].status = 'warming'
+                    else:
+                        thermostat_list[j].status = 'cooling'
+                    thermostat_list[j].power_on()
 
-                    #Initialize the thermostat 
-                    thermo_target[j].new_target = config.target_server[j]
-                    if thermostat_list[j].state == 'start':
-                        print("STATE 1 start")
-                        thermostat_list[j].initialize()
+                #Initialize the thermostat 
+                thermo_target[j].new_target = config.target_server[j]
+                if thermostat_list[j].state == 'start':
+                    print("STATE 1 on")
+                    thermostat_list[j].initialize()
 
-                    elif thermo_target[j].actual_target != thermo_target[j].new_target:
-                        thermostat_list[j].target_changing()
-                        if thermo_target[j].new_target < thermostat_list[j].temp:
-                            thermostat_list[j].start_cooling()
-                        elif thermo_target[j].new_target > thermostat_list[j].temp:
-                            thermostat_list[j].start_warming()
-                        thermo_target[j].actual_target = thermo_target[j].new_target
+                #Target temperature change
+                elif thermo_target[j].actual_target != thermo_target[j].new_target:
+                    thermostat_list[j].target_changing()
+                    if thermo_target[j].new_target < thermostat_list[j].temp:
+                        thermostat_list[j].start_cooling()
+                    elif thermo_target[j].new_target > thermostat_list[j].temp:
+                        thermostat_list[j].start_warming()
+                    thermo_target[j].actual_target = thermo_target[j].new_target
 
-                    elif thermostat_list[j].state == 'warming':
-                        print("STATE 2 warming")
-                        if thermostat_list[j].temp > thermo_target[j].actual_target+1:
-                            thermostat_list[j].start_cooling()
-                        else:
-                            thermostat_list[j].temp += random.random()
-                    elif thermostat_list[j].state == 'cooling':
-                        print("STATE 3 cooling")
-                        if thermostat_list[j].temp < thermo_target[j].actual_target-1:
-                            thermostat_list[j].start_warming()
-                        else:
-                            thermostat_list[j].temp -= random.random()
-                    elif thermostat_list[j].state == 'off':
-                        print("STATE 4 of")
-                else:
-                    if thermostat_list[j].state != 'off':
-                        thermostat_list[j].power_off()
-                    if thermostat_list[j].temp > config.env_temp:
+                elif thermostat_list[j].state == 'warming':
+                    print("STATE 2 warming")
+                    if thermostat_list[j].temp > thermo_target[j].actual_target+1:
+                        thermostat_list[j].start_cooling()
+                    else:
+                        thermostat_list[j].temp += random.random()
+                elif thermostat_list[j].state == 'cooling':
+                    print("STATE 3 cooling")
+                    if thermostat_list[j].temp < thermo_target[j].actual_target-1:
+                        thermostat_list[j].start_warming()
+                    else:
                         thermostat_list[j].temp -= random.random()
-            time.sleep(config.thermostat_refresh)
-        
-        else:
-            print('POWER OFF THERMOSTAT {}'.format(config.th_power_off))
-            thermostat_list[config.th_power_off-1].power = 0
-            config.th_power_off = -1
+            else:
+                print("STATE 4 off")
+                if thermostat_list[j].state != 'off':
+                    thermostat_list[j].power_off()
+                if thermostat_list[j].temp > config.env_temp:
+                    thermostat_list[j].temp -= random.random()
+        time.sleep(config.thermostat_refresh)
 
-if __name__ == "__main__":
-   main()
 

@@ -1,5 +1,6 @@
 import app.docker.config as client_config
 import lab.control.config as therm_config
+import json
 
 
 def main():
@@ -10,44 +11,100 @@ def main():
 
         if int(th) == 1:
             print('Change target temperature[press t]')
-            print('Power off thermostat [press p]')
+            print('Power on/off thermostat [press p]')
             pr = input()
 
             if pr == 't':
                 client_config.th_selection = int(th)
                 print('Target value: ')
                 tar = input()
-                client_config.target = tar
+
+                th_file = open("app/docker/th{}.json".format(int(th)), "r")
+                json_object = json.load(th_file)
+                th_file.close()
+                json_object["target"] = int(tar)
+
+                th_file = open("app/docker/th{}.json".format(int(th)), "w")
+                json.dump(json_object, th_file)
+                th_file.close()
+
             elif pr == 'p':
-                therm_config.th_power_off = th
-                print(therm_config.th_power_off)
+                th_file = open("lab/control/th{}.json".format(int(th)), "r")
+                json_object = json.load(th_file)
+                th_file.close()
+                
+                if json_object["power"] == 0:
+                    json_object["power"] = 1
+                elif json_object["power"] == 1:
+                    json_object["power"] = 0
+
+                th_file = open("lab/control/th{}.json".format(int(th)), "w")
+                json.dump(json_object, th_file)
+                th_file.close()
 
         elif int(th) == 2:
             print('Change target temperature[press t]')
-            print('Power off thermostat [press p]')
+            print('Power on/off thermostat [press p]')
             pr = input()
 
             if pr == 't':
-                client_config.th_selection = int(th)
                 print('Target value: ')
                 tar = input()
-                client_config.target = tar
+                
+                th_file = open("app/docker/th{}.json".format(int(th)), "r")
+                json_object = json.load(th_file)
+                th_file.close()
+                json_object["target"] = int(tar)
+
+                th_file = open("app/docker/th{}.json".format(int(th)), "w")
+                json.dump(json_object, th_file)
+                th_file.close()
 
             elif pr == 'p':
-                therm_config.th_power_off = th
+                th_file = open("lab/control/th{}.json".format(int(th)), "r")
+                json_object = json.load(th_file)
+                th_file.close()
+
+                if json_object["power"] == 0:
+                    json_object["power"] = 1
+                elif json_object["power"] == 1:
+                    json_object["power"] = 0
+
+                th_file = open("lab/control/th{}.json".format(int(th)), "w")
+                json.dump(json_object, th_file)
+                th_file.close()
 
         elif int(th) == 3:
             print('Change target temperature[press t]')
-            print('Power off thermostat [press p]')
+            print('Power on/off thermostat [press p]')
             pr = input()
 
             if pr == 't':
-                client_config.th_selection = int(th)
                 print('Target value: ')
                 tar = input()
-                client_config.target = tar
+                
+                th_file = open("app/docker/th{}.json".format(int(th)), "r")
+                json_object = json.load(th_file)
+                th_file.close()
+                json_object["target"] = int(tar)
+
+                th_file = open("app/docker/th{}.json".format(int(th)), "w")
+                json.dump(json_object, th_file)
+                th_file.close()
+
             elif pr == 'p':
-                therm_config.th_power_off = th
+                th_file = open("lab/control/th{}.json".format(int(th)), "r")
+                json_object = json.load(th_file)
+                th_file.close()
+
+                if json_object["power"] == 0:
+                    json_object["power"] = 1
+                elif json_object["power"] == 1:
+                    json_object["power"] = 0
+
+                th_file = open("lab/control/th{}.json".format(int(th)), "w")
+                json.dump(json_object, th_file)
+                th_file.close()
 
         else:
             print('Wrong input value')

@@ -8,6 +8,13 @@ The information that generates will be send by server.py that is connected with 
 
 Once the client had recived the information, it will store in the database that is on the TimescaleDB docker. This information will be visible in Grafana that is hosted on Docker.
 
+## Use guide
+
+1. Start docker-compose
+2. Run lab.py
+3. Run app.py
+4. Run manual_control.py
+
 ## Usefull code
 
 Open postgres terminal inside the docker:

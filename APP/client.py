@@ -1,10 +1,10 @@
-from itertools import count
 from opcua import Client
 import time
 import docker.config as config
 from warnings import catch_warnings;
 import psycopg2
 import random
+import json
 
 CONNECTION = "postgres://"+config.username+":"+config.password+"@"+config.host+":"+config.port+"/"+config.dbName
 query_create_table = "CREATE TABLE therm (id VARCHAR (10), datetime TIMESTAMP, temp FLOAT, state VARCHAR (10), target INTEGER);"
@@ -31,6 +31,18 @@ def start_client():
         cursor.execute(query_create_hypertable)
         conn.commit()
         conn.commit()
+    
+    for j in range(3):
+
+        th_file = open("app/docker/th{}.json".format(j+1), "r")
+        json_object = json.load(th_file)
+        th_file.close()
+        json_object["target"] = 20
+
+        th_file = open("app/docker/th{}.json".format(j+1), "w")
+        json.dump(json_object, th_file)
+        th_file.close()
+
 
     while True:
 
@@ -43,9 +55,10 @@ def start_client():
             temp_min = client.get_node('ns=2;s="V{}_Tmin"'.format(i+1))
             target = client.get_node('ns=2;s="V{}_Tar"'.format(i+1))
             
-            if config.th_selection == i+1:
-                target.set_value(config.target)
-                config.th_selection = -1
+            th_file = open("app/docker/th{}.json".format(i+1), "r")
+            json_object = json.load(th_file)
+            th_file.close()
+            target.set_value(int(json_object["target"]))
             
         
             print("Client: "+ str(id.get_value()), str(temp.get_value()), str(state.get_value()))

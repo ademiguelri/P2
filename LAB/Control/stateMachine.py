@@ -15,7 +15,6 @@ class thermostat:
         self.id = 'TH'+str(id)
         self.target = config.start_target
         self.status = 'warming'
-        self.power = config.power
 
         self.machine.add_transition(trigger='initialize', source='start', dest='warming')
         self.machine.add_transition(trigger='start_cooling', source=['warming','changing'], dest='cooling')

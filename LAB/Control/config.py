@@ -8,7 +8,5 @@ target = 20
 server_refresh = 3
 thermostat_refresh = 2
 THERM_NUM = 3
-power = 0
 env_temp = 15
 target_server = [20, 20, 20]
-th_power_off = -1
