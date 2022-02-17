@@ -14,7 +14,10 @@ class thermostat:
         self.temp_min = config.start_temp_min
         self.id = 'TH'+str(id)
         self.target = config.start_target
-        self.status = 'warming'
+        self.target_state = 'warming'
+        self.fase = config.initial_cero
+        self.target_dist = config.initial_cero
+        self.cycle = config.initial_cero
 
         self.machine.add_transition(trigger='initialize', source='start', dest='warming')
         self.machine.add_transition(trigger='start_cooling', source=['warming','changing'], dest='cooling')
@@ -22,6 +25,6 @@ class thermostat:
         self.machine.add_transition(trigger='target_changing', source='*', dest='changing')
 
         self.machine.add_transition(trigger='power_off', source='*', dest='off')
-        self.machine.add_transition(trigger='power_on', source='off', dest=self.status)
+        self.machine.add_transition(trigger='power_on', source='off', dest=self.target_state)
 
 

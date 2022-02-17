@@ -1,3 +1,4 @@
+from itertools import cycle
 from warnings import catch_warnings
 import control.stateMachine as stateMachine
 import server
@@ -18,6 +19,78 @@ def start_thermostat(count):
     thermostat_list = []
     thermo_target = []
 
+#   Create the thermostat
+    thermostat_list = create_thermostats(count, thermostat_list)
+
+    for i in range(int(count)):
+        comp = target_comp()
+        thermo_target.append(comp)
+
+    print("---{} Thermostats created---".format(int(count)))
+
+#   Start OPC UA server
+    server_thread = Thread(target=server.start_server, args=[thermostat_list, int(count)])
+    server_thread.start()
+
+#   Switch on the thermostat
+    while True:
+        #Switch the thermostats
+        for j in range(int(count)):
+            #Check JSON file
+            
+            power = read_json(j+1)
+            #power == 1 -> on / power == 0 -> off
+            if power == 1:
+                #If the machine start working again from off state
+                if thermostat_list[j].state == 'off':
+                    if thermostat_list[j].temp < thermo_target[j].actual_target:
+                        thermostat_list[j].target_state = 'warming'
+                        temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+                    else:
+                        thermostat_list[j].target_state = 'cooling'
+                        temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+                    thermostat_list[j].power_on()
+
+                #Initialize the thermostat 
+                thermo_target[j].new_target = config.target_server[j]
+                if thermostat_list[j].state == 'start':
+                    print("STATE 1 on")
+                    thermostat_list[j].initialize()
+                    temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+
+                #Target temperature change
+                elif thermo_target[j].actual_target != thermo_target[j].new_target:
+                    thermostat_list[j].target_changing()
+                    if thermo_target[j].new_target < thermostat_list[j].temp:
+                        thermostat_list[j].start_cooling()
+                    elif thermo_target[j].new_target > thermostat_list[j].temp:
+                        thermostat_list[j].start_warming()
+                    thermo_target[j].actual_target = thermo_target[j].new_target
+                    temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+
+                elif thermostat_list[j].state == 'warming':
+                    print("STATE 2 warming")
+                    if thermostat_list[j].temp > thermo_target[j].actual_target:
+                        thermostat_list[j].start_cooling()
+                        temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+                    else:
+                        thermostat_list[j].temp += caclulate_temp_change(thermostat_list[j], thermo_target[j].actual_target)
+                elif thermostat_list[j].state == 'cooling':
+                    print("STATE 3 cooling")
+                    if thermostat_list[j].temp < thermo_target[j].actual_target:
+                        thermostat_list[j].start_warming()
+                        temperature_change(thermostat_list[j], thermo_target[j].actual_target, thermo_target[j].actual_target)
+                    else:
+                        thermostat_list[j].temp -= caclulate_temp_change(thermostat_list[j])
+            else:
+                print("STATE 4 off")
+                if thermostat_list[j].state != 'off':
+                    thermostat_list[j].power_off()
+                if thermostat_list[j].temp > config.env_temp:
+                    thermostat_list[j].temp -= random.random()
+        time.sleep(config.thermostat_refresh)
+
+def create_thermostats(count, thermostat_list):
     for i in range(int(count)):
 #       Create the thermostat
         thermostat = stateMachine.thermostat(i+1)
@@ -33,71 +106,33 @@ def start_thermostat(count):
         th_file.close()
 
         thermostat_list.append(thermostat)
-        comp = target_comp()
-        thermo_target.append(comp)
-        
+    return thermostat_list
 
-    print("---{} Thermostats created---".format(int(count)))
+def read_json(num):
+    th_file = open("lab/control/th{}.json".format(num), "r")
+    json_object = json.load(th_file)
+    th_file.close()
+    return json_object["power"]
 
-#   Start OPC UA server
-    server_thread = Thread(target=server.start_server, args=[thermostat_list, int(count)])
-    server_thread.start()
+def temperature_change(thermostat, target):
+    thermostat.target_dist = abs(thermostat.temp - target)
+    thermostat.fase = 1
 
-#   Switch on the thermostat
-    while True:
-        
-        #Switch the thermostats
-        for j in range(int(count)):
-
-            #Check JSON file
-            th_file = open("lab/control/th{}.json".format(j+1), "r")
-            json_object = json.load(th_file)
-            th_file.close()
-            print(json_object["power"])
-            
-            #power == 1 -> on / power == 0 -> off
-            if json_object["power"] == 1:
-                #If the machine start working again from off state
-                if thermostat_list[j].state == 'off':
-                    if thermostat_list[j].temp < thermo_target[j].actual_target:
-                        thermostat_list[j].status = 'warming'
-                    else:
-                        thermostat_list[j].status = 'cooling'
-                    thermostat_list[j].power_on()
-
-                #Initialize the thermostat 
-                thermo_target[j].new_target = config.target_server[j]
-                if thermostat_list[j].state == 'start':
-                    print("STATE 1 on")
-                    thermostat_list[j].initialize()
-
-                #Target temperature change
-                elif thermo_target[j].actual_target != thermo_target[j].new_target:
-                    thermostat_list[j].target_changing()
-                    if thermo_target[j].new_target < thermostat_list[j].temp:
-                        thermostat_list[j].start_cooling()
-                    elif thermo_target[j].new_target > thermostat_list[j].temp:
-                        thermostat_list[j].start_warming()
-                    thermo_target[j].actual_target = thermo_target[j].new_target
-
-                elif thermostat_list[j].state == 'warming':
-                    print("STATE 2 warming")
-                    if thermostat_list[j].temp > thermo_target[j].actual_target+1:
-                        thermostat_list[j].start_cooling()
-                    else:
-                        thermostat_list[j].temp += random.random()
-                elif thermostat_list[j].state == 'cooling':
-                    print("STATE 3 cooling")
-                    if thermostat_list[j].temp < thermo_target[j].actual_target-1:
-                        thermostat_list[j].start_warming()
-                    else:
-                        thermostat_list[j].temp -= random.random()
-            else:
-                print("STATE 4 off")
-                if thermostat_list[j].state != 'off':
-                    thermostat_list[j].power_off()
-                if thermostat_list[j].temp > config.env_temp:
-                    thermostat_list[j].temp -= random.random()
-        time.sleep(config.thermostat_refresh)
-
-
+def caclulate_temp_change(thermostat, target):
+    if thermostat.fase == 1:
+        temp = (thermostat.cycle**2.0)/(thermostat.target_dist/1.5)
+        if thermostat.temp < target-(thermostat.target_dist/4):
+            thermostat.cycle += 0.01
+        else:
+            thermostat.cycle = 0
+            thermostat.fase = 2
+        return temp
+    elif thermostat.fase == 2:
+        temp = ((thermostat.cycle-(thermostat.target_dist/5.0))**2.0)/(thermostat.target_dist)+0.01
+        print('Fase : 2')
+        if thermostat.cycle > 1:
+            thermostat.cycle = 0
+            thermostat.fase = 0
+        else:
+            thermostat.cycle += 0.01
+        return temp
