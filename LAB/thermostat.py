@@ -79,15 +79,15 @@ def start_thermostat(count):
                     print("STATE 3 cooling")
                     if thermostat_list[j].temp < thermo_target[j].actual_target:
                         thermostat_list[j].start_warming()
-                        temperature_change(thermostat_list[j], thermo_target[j].actual_target, thermo_target[j].actual_target)
+                        temperature_change(thermostat_list[j], thermo_target[j].actual_target)
                     else:
-                        thermostat_list[j].temp -= caclulate_temp_change(thermostat_list[j])
+                        thermostat_list[j].temp -= caclulate_temp_change(thermostat_list[j], thermo_target[j].actual_target)
             else:
                 print("STATE 4 off")
                 if thermostat_list[j].state != 'off':
                     thermostat_list[j].power_off()
                 if thermostat_list[j].temp > config.env_temp:
-                    thermostat_list[j].temp -= random.random()
+                    thermostat_list[j].temp -= caclulate_temp_change(thermostat_list[j], thermo_target[j].actual_target)
         time.sleep(config.thermostat_refresh)
 
 def create_thermostats(count, thermostat_list):
@@ -116,23 +116,23 @@ def read_json(num):
 
 def temperature_change(thermostat, target):
     thermostat.target_dist = abs(thermostat.temp - target)
-    thermostat.fase = 1
+    thermostat.cycle = 0
 
 def caclulate_temp_change(thermostat, target):
-    if thermostat.fase == 1:
-        temp = (thermostat.cycle**2.0)/(thermostat.target_dist/1.5)
-        if thermostat.temp < target-(thermostat.target_dist/4):
+    if thermostat.temp < target:
+        temp = (thermostat.cycle**2.0)+0.01
+        if thermostat.temp < target-(thermostat.target_dist/2):
             thermostat.cycle += 0.01
+        elif thermostat.temp < target+0.01:
+            thermostat.cycle -= 0.01
         else:
-            thermostat.cycle = 0
-            thermostat.fase = 2
-        return temp
-    elif thermostat.fase == 2:
-        temp = ((thermostat.cycle-(thermostat.target_dist/5.0))**2.0)/(thermostat.target_dist)+0.01
-        print('Fase : 2')
-        if thermostat.cycle > 1:
-            thermostat.cycle = 0
-            thermostat.fase = 0
-        else:
+            thermostat.cycle -= 0.01
+    else:
+        temp = (thermostat.cycle**2.0)+0.01
+        if thermostat.temp > target+(thermostat.target_dist/2):
             thermostat.cycle += 0.01
-        return temp
+        elif thermostat.temp > target+0.01:
+            thermostat.cycle -= 0.01
+        else:
+            thermostat.cycle -= 0.01
+    return float(temp)

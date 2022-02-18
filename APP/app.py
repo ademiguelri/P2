@@ -10,7 +10,6 @@ def main():
     except:
         print('Error')
     client.start_client(count)
-    
 
 if __name__ == "__main__":
    main()

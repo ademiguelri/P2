@@ -15,7 +15,6 @@ class thermostat:
         self.id = 'TH'+str(id)
         self.target = config.start_target
         self.target_state = 'warming'
-        self.fase = config.initial_cero
         self.target_dist = config.initial_cero
         self.cycle = config.initial_cero
 

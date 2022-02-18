@@ -30,7 +30,7 @@ def start_client(count):
         th_file = open("app/docker/th{}.json".format(j+1), "r")
         json_object = json.load(th_file)
         th_file.close()
-        json_object["target"] = 20
+        json_object["target"] = 15
 
         th_file = open("app/docker/th{}.json".format(j+1), "w")
         json.dump(json_object, th_file)
