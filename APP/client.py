@@ -31,6 +31,7 @@ def start_client(count):
         json_object = json.load(th_file)
         th_file.close()
         json_object["target"] = 15
+        json_object["flag"] = 0
 
         th_file = open("app/docker/th{}.json".format(j+1), "w")
         json.dump(json_object, th_file)
@@ -51,8 +52,15 @@ def start_client(count):
             th_file = open("app/docker/th{}.json".format(i+1), "r")
             json_object = json.load(th_file)
             th_file.close()
-            target.set_value(int(json_object["target"]))
-            
+
+            #target.set_value(int(json_object["target"]))
+            if json_object["flag"] == 1:
+                target.set_value(int(json_object["target"]))
+                json_object["flag"] = 0
+                th_file = open("app/docker/th{}.json".format(i+1), "w")
+                json.dump(json_object, th_file)
+                th_file.close()
+
         
             print("Client: "+ str(id.get_value()), str(temp.get_value()), str(state.get_value()))
             #insert thermostat value to the database

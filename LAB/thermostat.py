@@ -18,6 +18,8 @@ def start_thermostat(count):
 #    Get value to crate thermostat objects
     thermostat_list = []
     thermo_target = []
+    cycle = []
+    next_cycle = 0.01
 
 #   Create the thermostat
     thermostat_list = create_thermostats(count, thermostat_list)
@@ -25,6 +27,7 @@ def start_thermostat(count):
     for i in range(int(count)):
         comp = target_comp()
         thermo_target.append(comp)
+        cycle.append(0)
 
     print("---{} Thermostats created---".format(int(count)))
 
@@ -45,10 +48,10 @@ def start_thermostat(count):
                 if thermostat_list[j].state == 'off':
                     if thermostat_list[j].temp < thermo_target[j].actual_target:
                         thermostat_list[j].target_state = 'warming'
-                        temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+                        temperature_change_init(thermostat_list[j], thermo_target[j].actual_target, cycle[j])
                     else:
                         thermostat_list[j].target_state = 'cooling'
-                        temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+                        temperature_change_init(thermostat_list[j], thermo_target[j].actual_target, cycle[j])
                     thermostat_list[j].power_on()
 
                 #Initialize the thermostat 
@@ -56,7 +59,7 @@ def start_thermostat(count):
                 if thermostat_list[j].state == 'start':
                     print("STATE 1 on")
                     thermostat_list[j].initialize()
-                    temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+                    temperature_change_init(thermostat_list[j], thermo_target[j].actual_target, cycle[j])
 
                 #Target temperature change
                 elif thermo_target[j].actual_target != thermo_target[j].new_target:
@@ -66,28 +69,48 @@ def start_thermostat(count):
                     elif thermo_target[j].new_target > thermostat_list[j].temp:
                         thermostat_list[j].start_warming()
                     thermo_target[j].actual_target = thermo_target[j].new_target
-                    temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+                    temperature_change_init(thermostat_list[j], thermo_target[j].actual_target, cycle[j])
 
                 elif thermostat_list[j].state == 'warming':
                     print("STATE 2 warming")
                     if thermostat_list[j].temp > thermo_target[j].actual_target:
                         thermostat_list[j].start_cooling()
-                        temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+                        temperature_change_init(thermostat_list[j], thermo_target[j].actual_target, cycle[j])
                     else:
-                        thermostat_list[j].temp += caclulate_temp_change(thermostat_list[j], thermo_target[j].actual_target)
+                        thermostat_list[j].temp += caclulate_temp_change(cycle[j])
+                        if thermostat_list[j].temp < thermo_target[j].actual_target-(thermostat_list[j].target_dist/2):
+                            cycle[j] += next_cycle
+                        else:
+                            cycle[j] -= next_cycle
                 elif thermostat_list[j].state == 'cooling':
                     print("STATE 3 cooling")
                     if thermostat_list[j].temp < thermo_target[j].actual_target:
                         thermostat_list[j].start_warming()
-                        temperature_change(thermostat_list[j], thermo_target[j].actual_target)
+                        temperature_change_init(thermostat_list[j], thermo_target[j].actual_target, cycle[j])
                     else:
-                        thermostat_list[j].temp -= caclulate_temp_change(thermostat_list[j], thermo_target[j].actual_target)
+                        thermostat_list[j].temp -= caclulate_temp_change(cycle[j])
+                        if thermostat_list[j].temp > thermo_target[j].actual_target+(thermostat_list[j].target_dist/2):
+                            cycle[j] += next_cycle
+                        else:
+                            cycle[j] -= next_cycle
             else:
                 print("STATE 4 off")
                 if thermostat_list[j].state != 'off':
                     thermostat_list[j].power_off()
+                    temperature_change_init(thermostat_list[j], config.env_temp, cycle[j])
                 if thermostat_list[j].temp > config.env_temp:
-                    thermostat_list[j].temp -= caclulate_temp_change(thermostat_list[j], thermo_target[j].actual_target)
+                    thermostat_list[j].temp -= caclulate_temp_change(cycle[j])
+                    if thermostat_list[j].temp < config.env_temp+(thermostat_list[j].target_dist/2):
+                        cycle[j] += next_cycle
+                    else:
+                        cycle[j] -= next_cycle
+                else:
+                    thermostat_list[j].temp += caclulate_temp_change(cycle[j])
+                    if thermostat_list[j].temp > config.env_temp-(thermostat_list[j].target_dist/2):
+                        cycle[j] += next_cycle
+                    else:
+                        cycle[j] -= next_cycle
+                        
         time.sleep(config.thermostat_refresh)
 
 def create_thermostats(count, thermostat_list):
@@ -114,25 +137,11 @@ def read_json(num):
     th_file.close()
     return json_object["power"]
 
-def temperature_change(thermostat, target):
+def temperature_change_init(thermostat, target, cycle):
     thermostat.target_dist = abs(thermostat.temp - target)
-    thermostat.cycle = 0
+    cycle = 0
 
-def caclulate_temp_change(thermostat, target):
-    if thermostat.temp < target:
-        temp = (thermostat.cycle**2.0)+0.01
-        if thermostat.temp < target-(thermostat.target_dist/2):
-            thermostat.cycle += 0.01
-        elif thermostat.temp < target+0.01:
-            thermostat.cycle -= 0.01
-        else:
-            thermostat.cycle -= 0.01
-    else:
-        temp = (thermostat.cycle**2.0)+0.01
-        if thermostat.temp > target+(thermostat.target_dist/2):
-            thermostat.cycle += 0.01
-        elif thermostat.temp > target+0.01:
-            thermostat.cycle -= 0.01
-        else:
-            thermostat.cycle -= 0.01
-    return float(temp)
+def caclulate_temp_change(cycle):
+    if cycle < 0:
+        cycle = 0
+    return (cycle**2.0)+0.01

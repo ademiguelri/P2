@@ -21,8 +21,9 @@ def main():
             th_file = open("app/docker/th{}.json".format(int(th)), "r")
             json_object = json.load(th_file)
             th_file.close()
+            
             json_object["target"] = int(tar)
-
+            json_object["flag"] = 1
             th_file = open("app/docker/th{}.json".format(int(th)), "w")
             json.dump(json_object, th_file)
             th_file.close()

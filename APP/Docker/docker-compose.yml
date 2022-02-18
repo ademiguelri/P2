@@ -18,9 +18,12 @@ services:
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
     user: '104'
+    environment:
+      - GF_INSTALL_PLUGINS=https://github.com/cloudspout/cloudspout-button-panel/releases/download/7.0.23/cloudspout-button-panel.zip;cloudspout-button-panel
     networks:
       - gateway
 
 networks:
-  gateway: {}
+  gateway:
+    driver: bridge
     
