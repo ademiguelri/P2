@@ -47,10 +47,10 @@ def start_thermostat(count):
                 #If the machine start working again from off state
                 if thermostat_list[j].state == 'off':
                     if thermostat_list[j].temp < thermo_target[j].actual_target:
-                        thermostat_list[j].target_state = 'warming'
+                        thermostat_list[j].last_state = 'warming'
                         temperature_change_init(thermostat_list[j], thermo_target[j].actual_target, cycle[j])
                     else:
-                        thermostat_list[j].target_state = 'cooling'
+                        thermostat_list[j].last_state = 'cooling'
                         temperature_change_init(thermostat_list[j], thermo_target[j].actual_target, cycle[j])
                     thermostat_list[j].power_on()
 
@@ -100,13 +100,13 @@ def start_thermostat(count):
                     temperature_change_init(thermostat_list[j], config.env_temp, cycle[j])
                 if thermostat_list[j].temp > config.env_temp:
                     thermostat_list[j].temp -= caclulate_temp_change(cycle[j])
-                    if thermostat_list[j].temp < config.env_temp+(thermostat_list[j].target_dist/2):
+                    if thermostat_list[j].temp > config.env_temp+(thermostat_list[j].target_dist/2):
                         cycle[j] += next_cycle
                     else:
                         cycle[j] -= next_cycle
                 else:
                     thermostat_list[j].temp += caclulate_temp_change(cycle[j])
-                    if thermostat_list[j].temp > config.env_temp-(thermostat_list[j].target_dist/2):
+                    if thermostat_list[j].temp < config.env_temp-(thermostat_list[j].target_dist/2):
                         cycle[j] += next_cycle
                     else:
                         cycle[j] -= next_cycle
@@ -144,4 +144,4 @@ def temperature_change_init(thermostat, target, cycle):
 def caclulate_temp_change(cycle):
     if cycle < 0:
         cycle = 0
-    return (cycle**2.0)+0.01
+    return (cycle**2.0)
