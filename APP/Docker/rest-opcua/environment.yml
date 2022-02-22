@@ -1,0 +1,12 @@
+name: restopcua
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python>=3.9
+  - pip
+  - flask
+  - flask-cors
+  - colorama
+  - pip:
+      - freeopcua

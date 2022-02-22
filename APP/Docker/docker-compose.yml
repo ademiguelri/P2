@@ -1,3 +1,4 @@
+version: "3.3"
 services:
   timescale:
     image: timescale/timescaledb:latest-pg14
@@ -20,6 +21,20 @@ services:
     user: '104'
     environment:
       - GF_INSTALL_PLUGINS=https://github.com/cloudspout/cloudspout-button-panel/releases/download/7.0.23/cloudspout-button-panel.zip;cloudspout-button-panel
+    networks:
+      - gateway
+    
+  rest-opcua:
+    container_name: rest-opcua
+    build:
+      context: ./rest-opcua
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    environment:
+      ENV: PRODUCTION
+      TZ: "Europe/Madrid"
+    restart: always
     networks:
       - gateway
 

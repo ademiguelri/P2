@@ -41,13 +41,13 @@ def start_client(count):
     while True:
 
         for i in range(int(count)):
-            id = client.get_node('ns=2;s="V{}_Id"'.format(i+1))
-            temp = client.get_node('ns=2;s="V{}_Te"'.format(i+1))
-            timeValue = client.get_node('ns=2;s="V{}_Ti"'.format(i+1))
-            state = client.get_node('ns=2;s="V{}_St"'.format(i+1))
-            temp_max = client.get_node('ns=2;s="V{}_Tmax"'.format(i+1))
-            temp_min = client.get_node('ns=2;s="V{}_Tmin"'.format(i+1))
-            target = client.get_node('ns=2;s="V{}_Tar"'.format(i+1))
+            id = client.get_node('ns=2;s=V{}_Id'.format(i+1))
+            temp = client.get_node('ns=2;s=V{}_Te'.format(i+1))
+            timeValue = client.get_node('ns=2;s=V{}_Ti'.format(i+1))
+            state = client.get_node('ns=2;s=V{}_St'.format(i+1))
+            temp_max = client.get_node('ns=2;s=V{}_Tmax'.format(i+1))
+            temp_min = client.get_node('ns=2;s=V{}_Tmin'.format(i+1))
+            target = client.get_node('ns=2;s=V{}_Tar'.format(i+1))
             
             th_file = open("app/docker/th{}.json".format(i+1), "r")
             json_object = json.load(th_file)
