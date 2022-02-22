@@ -15,6 +15,12 @@ last_temp = 0
 last_state = ''
 last_target = ''
 
+node_id = 'ns=2;s=V1_Id'
+node_temp = 'ns=2;s=V1_Te'
+node_state = 'ns=2;s=V1_St'
+node_temp_max = 'ns=2;s=V1_Tmax' 
+node_temp_min = 'ns=2;s=V1_Tmin'
+node_target = 'ns=2;s=V1_Tar'
 
 with psycopg2.connect(CONNECTION) as conn:
     cursor = conn.cursor()
@@ -32,24 +38,23 @@ def insert_value(last_temp,last_state,last_target,id_val,temp_max_val,temp_min_v
     conn.commit()
     cursor.close()
 
-class time_handler(object):
-    def datachange_notification(self, node, val, data):
-        insert_value(last_temp,last_state,last_target,id_val,temp_max_val,temp_min_val)
-
 class temp_handler(object):
     def datachange_notification(self, node, val, data):
         global last_temp
         last_temp = val
+        insert_value(last_temp,last_state,last_target,id_val,temp_max_val,temp_min_val)
 
 class state_handler(object):
     def datachange_notification(self, node, val, data):
         global last_state
         last_state = val
+        insert_value(last_temp,last_state,last_target,id_val,temp_max_val,temp_min_val)
 
 class target_handler(object):
     def datachange_notification(self, node, val, data):
         global last_target
         last_target = val
+        insert_value(last_temp,last_state,last_target,id_val,temp_max_val,temp_min_val)
 
 client = Client(config.URL)
 try:
@@ -58,23 +63,18 @@ try:
 except:
     print('Error connecting to server')
 else:
-    time_value = client.get_node('ns=2;s="V1_Ti"')
-    id = client.get_node('ns=2;s="V1_Id"')
-    temp = client.get_node('ns=2;s="V1_Te"')
-    state = client.get_node('ns=2;s="V1_St"')
-    temp_max = client.get_node('ns=2;s="V1_Tmax"')
-    temp_min = client.get_node('ns=2;s="V1_Tmin"')
-    target = client.get_node('ns=2;s="V1_Tar"')
+    id = client.get_node(node_id)
+    temp = client.get_node(node_temp)
+    state = client.get_node(node_state)
+    temp_max = client.get_node(node_temp_max)
+    temp_min = client.get_node(node_temp_min)
+    target = client.get_node(node_target)
     id_val = id.get_value()
     last_temp = temp.get_value()
     last_state = state.get_value()
     last_target = target.get_value ()
     temp_max_val = temp_max.get_value()
     temp_min_val = temp_min.get_value()
-
-    handler_time = time_handler()
-    sub_time = client.create_subscription(500, handler_time)
-    handle_time = sub_time.subscribe_data_change(time_value)
 
     handler_temp = temp_handler()
     sub_temp = client.create_subscription(500, handler_temp)
@@ -84,10 +84,13 @@ else:
     sub_state = client.create_subscription(500, handler_state)
     handle_state = sub_state.subscribe_data_change(state)
 
-    handler_target = state_handler()
+    handler_target = target_handler()
     sub_target = client.create_subscription(500, handler_target)
     handle_target = sub_target.subscribe_data_change(target)
     
+    while True:
+        insert_value(last_temp,last_state,last_target,id_val,temp_max_val,temp_min_val)
+        time.sleep(15)
     # sub.unsubscribe(handle)
     # print('Client disconnected')
     # client.disconnect
