@@ -65,5 +65,6 @@ def add_variables(count, stateMachine):
         therm_variables.temp_min = therm_list[j].add_variable('ns=2;s=V{}_Tmin'.format(j+1), "Temperature min", stateMachine[j].temp_min)
         therm_variables.target = therm_list[j].add_variable('ns=2;s=V{}_Tar'.format(j+1), "Therm target", stateMachine[j].target)
         therm_variables.target.set_writable()
+        therm_variables.state.set_writable()
         var_list.append(therm_variables)   
     return var_list
