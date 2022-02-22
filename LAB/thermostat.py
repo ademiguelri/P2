@@ -120,7 +120,6 @@ def create_thermostats(count, thermostat_list):
         #power on the thermostat
         th_file = open("lab/control/th{}.json".format(i+1), "r")
         json_object = json.load(th_file)
-        print(json_object)
         th_file.close()
 
         json_object["power"] = 1
