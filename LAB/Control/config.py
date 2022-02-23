@@ -11,3 +11,4 @@ THERM_NUM = 3
 env_temp = 15
 target_server = [15, 15, 15]
 initial_cero = 0.0
+initial_one = 1

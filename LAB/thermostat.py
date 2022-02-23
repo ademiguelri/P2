@@ -39,11 +39,9 @@ def start_thermostat(count):
     while True:
         #Switch the thermostats
         for j in range(int(count)):
-            #Check JSON file
-            
-            power = read_json(j+1)
+           
             #power == 1 -> on / power == 0 -> off
-            if power == 1:
+            if thermostat_list[j].power == 1:
                 #If the machine start working again from off state
                 if thermostat_list[j].state == 'off':
                     if thermostat_list[j].temp < thermo_target[j].actual_target:
@@ -93,7 +91,8 @@ def start_thermostat(count):
                             cycle[j] += next_cycle
                         else:
                             cycle[j] -= next_cycle
-            else:
+                            
+            elif thermostat_list[j].power == 0:
                 print("STATE 4 off")
                 if thermostat_list[j].state != 'off':
                     thermostat_list[j].power_off()

@@ -11,9 +11,18 @@ query_create_table = "CREATE TABLE therm (id VARCHAR (10), datetime TIMESTAMP, t
 query_create_hypertable = "SELECT create_hypertable('therm', 'datetime');"
 drop_table = "DROP TABLE therm;"
 
+lap = 15
+therm1_val = 0
+therm2_val = 0
+therm3_val = 0
+
 
 def start_client(count):
     therm_list = []
+    global therm1_val
+    global therm2_val
+    global therm3_val
+
     client = Client(config.URL)
     try:
         client.connect()
@@ -35,6 +44,10 @@ def start_client(count):
         therm2 = client.get_node('ns=2;s=V2_Therm')
         therm3 = client.get_node('ns=2;s=V3_Therm')
 
+        therm1_val = therm1.get_value() 
+        therm2_val = therm2.get_value()
+        therm3_val = therm3.get_value()
+
         handler_1 = therm_handler()
         sub_1 = client.create_subscription(500, handler_1)
         handle_1 = sub_1.subscribe_data_change(therm1)
@@ -47,6 +60,11 @@ def start_client(count):
         sub_3 = client.create_subscription(500, handler_3)
         handle_3 = sub_3.subscribe_data_change(therm3)
 
+        while True:
+           insert_value(therm1_val)
+           insert_value(therm2_val)
+           insert_value(therm3_val)
+           time.sleep(lap)
 
 def insert_value(term):
     conn = psycopg2.connect(CONNECTION)
@@ -54,9 +72,13 @@ def insert_value(term):
     cursor.execute("INSERT INTO therm (id, datetime, temp, state, target) VALUES ('"+str(term[0])+"', current_timestamp,"+str(term[1])+",'"+str(term[2])+"',"+str(term[5])+")")
     conn.commit()
     cursor.close()
+    if term[0] == 'TH1':
+        therm1_val = term
+    elif term[0] == 'TH2':
+        therm2_val = term
+    elif term[0] == 'TH3':
+        therm3_val = term
 
 class therm_handler(object):
     def datachange_notification(self, node, val, data):
-        global actual_values
-        actual_values = val
         insert_value(val)
