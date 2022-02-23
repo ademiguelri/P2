@@ -12,70 +12,53 @@ query_create_hypertable = "SELECT create_hypertable('therm', 'datetime');"
 drop_table = "DROP TABLE therm;"
 
 def start_client(count):
+    therm_list = []
     client = Client(config.URL)
-    client.connect()
-    print("Client connected")
-
-    with psycopg2.connect(CONNECTION) as conn:
-        cursor = conn.cursor()
-        cursor.execute(drop_table)
-        cursor.execute(query_create_table)
-        conn.commit()
-        cursor.execute(query_create_hypertable)
-        conn.commit()
-        conn.commit()
+    try:
+        client.connect()
+        print("Client connected")
+    except:
+        print('Error connecting to server')
+    else:
+        with psycopg2.connect(CONNECTION) as conn:
+            cursor = conn.cursor()
+            cursor.execute(drop_table)
+            cursor.execute(query_create_table)
+            conn.commit()
+            cursor.execute(query_create_hypertable)
+            conn.commit()
+            cursor.close()
     
-    for j in range(int(count)):
-
-        th_file = open("app/docker/th{}.json".format(j+1), "r")
-        json_object = json.load(th_file)
-        th_file.close()
-        json_object["target"] = 15
-        json_object["flag"] = 0
-
-        th_file = open("app/docker/th{}.json".format(j+1), "w")
-        json.dump(json_object, th_file)
-        th_file.close()
-
-
-    while True:
-
-        for i in range(int(count)):
-            id = client.get_node('ns=2;s="V{}_Id"'.format(i+1))
-            temp = client.get_node('ns=2;s="V{}_Te"'.format(i+1))
-            timeValue = client.get_node('ns=2;s="V{}_Ti"'.format(i+1))
-            state = client.get_node('ns=2;s="V{}_St"'.format(i+1))
-            temp_max = client.get_node('ns=2;s="V{}_Tmax"'.format(i+1))
-            temp_min = client.get_node('ns=2;s="V{}_Tmin"'.format(i+1))
-            target = client.get_node('ns=2;s="V{}_Tar"'.format(i+1))
-            
-            th_file = open("app/docker/th{}.json".format(i+1), "r")
-            json_object = json.load(th_file)
-            th_file.close()
-
-            #target.set_value(int(json_object["target"]))
-            if json_object["flag"] == 1:
-                target.set_value(int(json_object["target"]))
-                json_object["flag"] = 0
-                th_file = open("app/docker/th{}.json".format(i+1), "w")
-                json.dump(json_object, th_file)
-                th_file.close()
-
         
-            print("Client: "+ str(id.get_value()), str(temp.get_value()), str(state.get_value()))
-            #insert thermostat value to the database
-            insert_value(id.get_value(), temp.get_value(), state.get_value(), target.get_value())
-            
-        time.sleep(config.client_refresh)
+        therm1 = client.get_node('ns=2;s=V1_Therm')
+        therm2 = client.get_node('ns=2;s=V2_Therm')
+        therm3 = client.get_node('ns=2;s=V3_Therm')
 
-    cursor.close()
+        handler_1 = therm_handler()
+        sub_1 = client.create_subscription(500, handler_1)
+        handle_1 = sub_1.subscribe_data_change(therm1)
 
+        handler_2 = therm_handler()
+        sub_2 = client.create_subscription(500, handler_2)
+        handle_2 = sub_2.subscribe_data_change(therm2)
 
+        handler_3 = therm_handler()
+        sub_3 = client.create_subscription(500, handler_3)
+        handle_3 = sub_3.subscribe_data_change(therm3)
 
+    # while True:
+    #     insert_value(therm_list[k].get_value())
+    #     print("Client: "+str(therm_list[k].id), str(therm_list[k].temp), str(therm_list[k].state), str(therm_list[k].target))    
+    #     time.sleep(config.client_refresh)
 
-def insert_value(id, temp, state, target):
+def insert_value(term):
 
     conn = psycopg2.connect(CONNECTION)
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO therm (id, datetime, temp, state, target) VALUES ('"+str(id)+"', current_timestamp,"+str(temp)+",'"+str(state)+"',"+str(target)+")")
+    cursor.execute("INSERT INTO therm (id, datetime, temp, state, target) VALUES ('"+str(term.id)+"', current_timestamp,"+str(term.temp)+",'"+str(term.state)+"',"+str(term.target)+")")
     conn.commit()
+    cursor.close()
+
+class therm_handler(object):
+    def datachange_notification(self, node, val, data):
+        insert_value(val.get_value())
