@@ -10,8 +10,8 @@ import control.config as config
 
 class target_comp:
     def __init__(self):
-        self.actual_target = 20
-        self.new_target = 20
+        self.actual_target = 15
+        self.new_target = 15
 
 def start_thermostat(count):
 
@@ -55,7 +55,7 @@ def start_thermostat(count):
                     thermostat_list[j].power_on()
 
                 #Initialize the thermostat 
-                thermo_target[j].new_target = config.target_server[j]
+                thermo_target[j].new_target = thermostat_list[j].target
                 if thermostat_list[j].state == 'start':
                     print("STATE 1 on")
                     thermostat_list[j].initialize()

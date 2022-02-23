@@ -11,6 +11,7 @@ query_create_table = "CREATE TABLE therm (id VARCHAR (10), datetime TIMESTAMP, t
 query_create_hypertable = "SELECT create_hypertable('therm', 'datetime');"
 drop_table = "DROP TABLE therm;"
 
+
 def start_client(count):
     therm_list = []
     client = Client(config.URL)
@@ -46,19 +47,16 @@ def start_client(count):
         sub_3 = client.create_subscription(500, handler_3)
         handle_3 = sub_3.subscribe_data_change(therm3)
 
-    # while True:
-    #     insert_value(therm_list[k].get_value())
-    #     print("Client: "+str(therm_list[k].id), str(therm_list[k].temp), str(therm_list[k].state), str(therm_list[k].target))    
-    #     time.sleep(config.client_refresh)
 
 def insert_value(term):
-
     conn = psycopg2.connect(CONNECTION)
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO therm (id, datetime, temp, state, target) VALUES ('"+str(term.id)+"', current_timestamp,"+str(term.temp)+",'"+str(term.state)+"',"+str(term.target)+")")
+    cursor.execute("INSERT INTO therm (id, datetime, temp, state, target) VALUES ('"+str(term[0])+"', current_timestamp,"+str(term[1])+",'"+str(term[2])+"',"+str(term[5])+")")
     conn.commit()
     cursor.close()
 
 class therm_handler(object):
     def datachange_notification(self, node, val, data):
-        insert_value(val.get_value())
+        global actual_values
+        actual_values = val
+        insert_value(val)
