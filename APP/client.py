@@ -1,3 +1,4 @@
+from tracemalloc import start
 from opcua import Client
 import time
 import docker.config as config
@@ -44,10 +45,6 @@ def start_client(count):
         therm2 = client.get_node('ns=2;s=V2_Therm')
         therm3 = client.get_node('ns=2;s=V3_Therm')
 
-        therm1_val = therm1.get_value() 
-        therm2_val = therm2.get_value()
-        therm3_val = therm3.get_value()
-
         handler_1 = therm_handler()
         sub_1 = client.create_subscription(500, handler_1)
         handle_1 = sub_1.subscribe_data_change(therm1)
@@ -82,3 +79,5 @@ def insert_value(term):
 class therm_handler(object):
     def datachange_notification(self, node, val, data):
         insert_value(val)
+        global flag
+        flag = True

@@ -4,7 +4,7 @@ import time
 import control.config as config
 import thermostat
 
-therm_list = []
+obj_list = []
 var_list = []
 value_list = []
 id = 'ns=2;s=V'
@@ -37,26 +37,23 @@ def start_server(stateMachine, count):
 
     myobjC.target = 11
 
-
-
+########################################
 
     node =  server.get_objects_node()
-    param = node.add_object(id, "Thermostat")
-    global power_value
+    custom_obj_type = node.add_object_type(id, "Thermostats")
 
-    for k in range(count):
-        therm = param.add_folder(id+'{}'.format(k+1), "therm_{}".format(k+1))
-        therm_list.append(therm)
-
-        value_list.append(extract_required_values(stateMachine[k]))
-
-    
+    for l in range(count):
+        myobj = node.add_object(id, "Therm{}".format(l+1), custom_obj_type.nodeid)
+        obj_list.append(myobjC)
+        
+        value_list.append(extract_required_values(stateMachine[l]))
 
     var_list = add_variables(count, value_list)
 
     server.start()
     print("Server started at {}".format(config.URL))
-
+    
+    global power_value
     while True:
         for i in range(count):
             ID = stateMachine[i].id
@@ -90,7 +87,7 @@ class therm_var:
 def add_variables(count, values):
     for j in range(count):
         therm_variables = therm_var()
-        therm_variables.therm = therm_list[j].add_variable('ns=2;s=V{}_Therm'.format(j+1), 'Therm{}'.format(j+1), values[j])
+        therm_variables.therm = obj_list[j].add_variable('ns=2;s=V{}_Therm'.format(j+1), 'Therm{}'.format(j+1), values[j])
         therm_variables.therm.set_writable()
         var_list.append(therm_variables)   
     return var_list
