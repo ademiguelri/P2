@@ -1,5 +1,6 @@
 from http import server
 from opcua import Server,ua 
+from opcua.server.user_manager import UserManager
 import datetime
 import time
 import control.config as config
@@ -14,36 +15,42 @@ id = 'ns=2;s=V'
 power_value = True
 server_ip = '0.0.0.0'
 
+# users database
+users_db = {
+    'user1': 'passwd1',
+    'user2': 'passwd2',
+    'user3': 'passwd3',
+}
+
+# user manager
+def user_manager(isession, username, password):
+    print(isession, username, password)
+    isession.user = UserManager.User
+    return username in users_db and password == users_db[username]
+
 def start_server(stateMachine, count):
     server = Server()
     server.set_endpoint(config.URL)
 
-########################################
+    # load server certificate and private key. This enables endpoints
+    # with signing and encryption.
+    # server.load_certificate("certificate-example.der")
+    # server.load_private_key("private-key-example.pem")
 
-    # uri = "http://examples.freeopcua.github.io"
-    # idx = server.register_namespace(uri)
+    # set all possible endpoint policies for clients to connect through
+    # server.set_security_policy([
+    #     # ua.SecurityPolicyType.NoSecurity,
+    #     ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
+    #     # ua.SecurityPolicyType.Basic256Sha256_Sign,
+    # ])
 
-    # get Objects node, this is where we should put our custom stuff
-    # objects = server.get_objects_node()
-    # types = server.get_node(ua.ObjectIds.BaseObjectType)
-    
-    # object_type_to_derive_from = server.get_root_node().get_child(["0:Types", 
-    #                                                                "0:ObjectTypes", 
-    #                                                                "0:BaseObjectType"])
-    # mycustomobj_type = types.add_object_type(idx, "MyThermostat")
-    # var = mycustomobj_type.add_variable(0, "target", 15.0) # demonstrates instantiate
-    # var.set_modelling_rule(True) #if false it would not be instantiated
-    # var2 = mycustomobj_type.add_variable(1, "temp", 15.0) # demonstrates instantiate
-    # var2.set_modelling_rule(True) #if false it would not be instantiated
-    # var3 = mycustomobj_type.add_variable(1, "state", "off") # demonstrates instantiate
-    # var3.set_modelling_rule(True) #if false it would not be instantiated
-    # myobjA = objects.add_object(idx, "ThermA", mycustomobj_type.nodeid)
-    # myobjB = objects.add_object(idx, "ThermB", mycustomobj_type.nodeid)
-    # myobjC = objects.add_object(idx, "ThermC", mycustomobj_type.nodeid)
+    # set the security endpoints for identification of clients
+    server.set_security_IDs(["Username"])
 
-    # myobjC.target = 11
+    # set the user_manager function
+    server.user_manager.set_user_manager(user_manager)
 
-########################################
+
 
     node =  server.get_objects_node()
     custom_obj_type = node.add_object_type(id, "Thermostats")

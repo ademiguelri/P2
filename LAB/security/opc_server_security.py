@@ -26,7 +26,7 @@ class OPC_SERVER_SECURITY:
         out_json['password'] = server_hash_pws.decode()
         out_json['salt'] = self.salt.decode()
 
-        with open('./credentials.json', 'w') as fp:
+        with open('lab/security/credentials.json', 'w') as fp:
             json.dump(out_json, fp, indent=4, ensure_ascii=False)
 
     def client_authentication(self):
