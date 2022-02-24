@@ -11,7 +11,7 @@ class OPC_SERVER_SECURITY:
         self.salt = bcrypt.gensalt()
     
     def init_opc_server_security(self, ip):
-        self.server_socket.bind(ip, XXXX)
+        self.server_socket.bind((ip, 5000))
         self.server_socket.listen(1)
 
     def set_server_credentials(self, username, password):
@@ -26,7 +26,7 @@ class OPC_SERVER_SECURITY:
         out_json['password'] = server_hash_pws.decode()
         out_json['salt'] = self.salt.decode()
 
-        with open('credentials.json', 'w') as fp:
+        with open('./credentials.json', 'w') as fp:
             json.dump(out_json, fp, indent=4, ensure_ascii=False)
 
     def client_authentication(self):

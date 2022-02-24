@@ -1,14 +1,18 @@
+from http import server
 from opcua import Server,ua 
 import datetime
 import time
 import control.config as config
 import thermostat
+from security.opc_server_security import OPC_SERVER_SECURITY
 
+# opc_server = OPC_SERVER_SECURITY()
 obj_list = []
 var_list = []
 value_list = []
 id = 'ns=2;s=V'
 power_value = True
+server_ip = '0.0.0.0'
 
 def start_server(stateMachine, count):
     server = Server()
@@ -70,6 +74,10 @@ def start_server(stateMachine, count):
     server.start()
     print("Server started at {}".format(config.URL))
     
+    # opc_server.init_opc_server_security(server_ip)
+    # opc_server.set_server_credentials('admin', 'admin123')
+
+
     global power_value
     TARGET = stateMachine[0].target
     POWER = stateMachine[0].power
@@ -78,6 +86,8 @@ def start_server(stateMachine, count):
         var_list[n].power.set_value(POWER)
 
     while True:
+        # auth = opc_server.client_authentication()
+        # while auth:
         for i in range(count):
             ID = stateMachine[i].id
             TEMP = stateMachine[i].temp
