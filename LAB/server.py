@@ -14,41 +14,55 @@ def start_server(stateMachine, count):
     server = Server()
     server.set_endpoint(config.URL)
 
-    uri = "http://examples.freeopcua.github.io"
-    idx = server.register_namespace(uri)
+########################################
+
+    # uri = "http://examples.freeopcua.github.io"
+    # idx = server.register_namespace(uri)
 
     # get Objects node, this is where we should put our custom stuff
-    objects = server.get_objects_node()
-    types = server.get_node(ua.ObjectIds.BaseObjectType)
+    # objects = server.get_objects_node()
+    # types = server.get_node(ua.ObjectIds.BaseObjectType)
     
-    object_type_to_derive_from = server.get_root_node().get_child(["0:Types", 
-                                                                   "0:ObjectTypes", 
-                                                                   "0:BaseObjectType"])
-    mycustomobj_type = types.add_object_type(idx, "MyThermostat")
-    var = mycustomobj_type.add_variable(0, "target", 15.0) # demonstrates instantiate
-    var.set_modelling_rule(True) #if false it would not be instantiated
-    var2 = mycustomobj_type.add_variable(1, "temp", 15.0) # demonstrates instantiate
-    var2.set_modelling_rule(True) #if false it would not be instantiated
-    var3 = mycustomobj_type.add_variable(1, "state", "off") # demonstrates instantiate
-    var3.set_modelling_rule(True) #if false it would not be instantiated
-    myobjA = objects.add_object(idx, "ThermA", mycustomobj_type.nodeid)
-    myobjB = objects.add_object(idx, "ThermB", mycustomobj_type.nodeid)
-    myobjC = objects.add_object(idx, "ThermC", mycustomobj_type.nodeid)
+    # object_type_to_derive_from = server.get_root_node().get_child(["0:Types", 
+    #                                                                "0:ObjectTypes", 
+    #                                                                "0:BaseObjectType"])
+    # mycustomobj_type = types.add_object_type(idx, "MyThermostat")
+    # var = mycustomobj_type.add_variable(0, "target", 15.0) # demonstrates instantiate
+    # var.set_modelling_rule(True) #if false it would not be instantiated
+    # var2 = mycustomobj_type.add_variable(1, "temp", 15.0) # demonstrates instantiate
+    # var2.set_modelling_rule(True) #if false it would not be instantiated
+    # var3 = mycustomobj_type.add_variable(1, "state", "off") # demonstrates instantiate
+    # var3.set_modelling_rule(True) #if false it would not be instantiated
+    # myobjA = objects.add_object(idx, "ThermA", mycustomobj_type.nodeid)
+    # myobjB = objects.add_object(idx, "ThermB", mycustomobj_type.nodeid)
+    # myobjC = objects.add_object(idx, "ThermC", mycustomobj_type.nodeid)
 
-    myobjC.target = 11
+    # myobjC.target = 11
 
 ########################################
 
     node =  server.get_objects_node()
     custom_obj_type = node.add_object_type(id, "Thermostats")
 
-    for l in range(count):
-        myobj = node.add_object(id, "Therm{}".format(l+1), custom_obj_type.nodeid)
-        obj_list.append(myobjC)
-        
-        value_list.append(extract_required_values(stateMachine[l]))
+    therm_id = custom_obj_type.add_variable(0, "Id", '')
+    therm_id.set_modelling_rule(True)
+    temp = custom_obj_type.add_variable(1, "Temperature", 0.0)
+    temp.set_modelling_rule(True)
+    state = custom_obj_type.add_variable(2, "State", '')
+    state.set_modelling_rule(True)
+    temp_max = custom_obj_type.add_variable(3, "Temperature_max", 0.0)
+    temp_max.set_modelling_rule(True)
+    temp_min = custom_obj_type.add_variable(4, "Temperature_min", 0.0)
+    temp_min.set_modelling_rule(True)
+    target = custom_obj_type.add_variable(5, "Target", 0)
+    target.set_modelling_rule(True)
+    target.set_writable()
 
-    var_list = add_variables(count, value_list)
+    for l in range(count):
+        myobj = node.add_object(id+'{}'.format(str(l+1)), "Therm{}".format(l+1), custom_obj_type.nodeid)
+        obj_list.append(myobj)
+
+    var_list = add_variables(count, stateMachine, obj_list)
 
     server.start()
     print("Server started at {}".format(config.URL))
@@ -58,48 +72,41 @@ def start_server(stateMachine, count):
         for i in range(count):
             ID = stateMachine[i].id
             TEMP = stateMachine[i].temp
-            TIME = datetime.datetime.now()
             STATE = stateMachine[i].state
             TEMP_MAX = stateMachine[i].temp_max
             TEMP_MIN = stateMachine[i].temp_min
-            VALUE_LIST = var_list[i].therm.get_value()
-            stateMachine[i].target = int(VALUE_LIST[5])
+            TARGET = stateMachine[i].target
+            print("Server: "+str(ID), str(TEMP), str(STATE), str(TARGET))
 
-            if VALUE_LIST[6] == 'False':
-                stateMachine[i].power = 0
-                power_value = False
-            elif VALUE_LIST[6] == 'True':
-                stateMachine[i].power = 1
-                power_value = True
-
-            THERM = extract_required_values(stateMachine[i])
-            var_list[i].therm.set_value(THERM)
-
-            print("Server: "+str(ID), str(TEMP), str(STATE), str(VALUE_LIST[5]))
+            var_list[i].therm_id.set_value(ID)
+            var_list[i].temp.set_value(TEMP)
+            var_list[i].state.set_value(STATE)
+            var_list[i].temp_max.set_value(TEMP_MAX)
+            var_list[i].temp_min.set_value(TEMP_MIN)
+            var_list[i].target.set_value(TARGET)
 
         time.sleep(config.server_refresh)
     
-
 class therm_var:
     def __init__(self):
-        self.therm = 0
+        self.therm_id = 0
+        self.temp = 0
+        self.time_value = 0
+        self.state = 0
+        self.temp_max = 0
+        self.temp_min = 0
+        self.target = 0
 
-def add_variables(count, values):
+def add_variables(count, stateMachine, obj_list):
+    list = []
     for j in range(count):
         therm_variables = therm_var()
-        therm_variables.therm = obj_list[j].add_variable('ns=2;s=V{}_Therm'.format(j+1), 'Therm{}'.format(j+1), values[j])
-        therm_variables.therm.set_writable()
-        var_list.append(therm_variables)   
-    return var_list
-
-def extract_required_values(stateMachine):
-    values = []
-    global power_value 
-    values.append(str(stateMachine.id))
-    values.append(str(stateMachine.temp))
-    values.append(str(stateMachine.state))
-    values.append(str(stateMachine.temp_max))
-    values.append(str(stateMachine.temp_min))
-    values.append(str(stateMachine.target))
-    values.append(str(power_value))
-    return values
+        therm_variables.therm_id = obj_list[j].get_child(["0:Id"])
+        therm_variables.temp = obj_list[j].get_child(["1:Temperature"])
+        therm_variables.state = obj_list[j].get_child(["2:State"])
+        therm_variables.temp_max = obj_list[j].get_child(["3:Temperature_max"])
+        therm_variables.temp_min = obj_list[j].get_child(["4:Temperature_min"])
+        therm_variables.target = obj_list[j].get_child(["5:Target"])
+        therm_variables.target.set_writable()
+        list.append(therm_variables)   
+    return list
