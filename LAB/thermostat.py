@@ -116,25 +116,8 @@ def create_thermostats(count, thermostat_list):
     for i in range(int(count)):
 #       Create the thermostat
         thermostat = stateMachine.thermostat(i+1)
-        #power on the thermostat
-        th_file = open("lab/control/th{}.json".format(i+1), "r")
-        json_object = json.load(th_file)
-        print(json_object)
-        th_file.close()
-
-        json_object["power"] = 1
-        th_file = open("lab/control/th{}.json".format(i+1), "w")
-        json.dump(json_object, th_file)
-        th_file.close()
-
         thermostat_list.append(thermostat)
     return thermostat_list
-
-def read_json(num):
-    th_file = open("lab/control/th{}.json".format(num), "r")
-    json_object = json.load(th_file)
-    th_file.close()
-    return json_object["power"]
 
 def temperature_change_init(thermostat, target, cycle):
     thermostat.target_dist = abs(thermostat.temp - target)

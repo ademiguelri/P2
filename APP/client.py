@@ -1,5 +1,4 @@
-from tracemalloc import start
-from opcua import Client
+from opcua import Client, ua
 import time
 import docker.config as config
 from warnings import catch_warnings;
@@ -12,17 +11,22 @@ query_create_table = "CREATE TABLE therm (id VARCHAR (10), datetime TIMESTAMP, t
 query_create_hypertable = "SELECT create_hypertable('therm', 'datetime');"
 drop_table = "DROP TABLE therm;"
 
-lap = 15
-therm1_val = 0
-therm2_val = 0
-therm3_val = 0
+lap = 1
+id = 'ns=2;s=V'
+therm_id = ''
+temp = ''
+state = ''
+target = ''
 
 
-def start_client(count):
+def start_client():
     therm_list = []
-    global therm1_val
-    global therm2_val
-    global therm3_val
+    handler_list = []
+    handle_list = []
+    global therm_id
+    global temp
+    global state
+    global target
 
     client = Client(config.URL)
     try:
@@ -40,44 +44,57 @@ def start_client(count):
             conn.commit()
             cursor.close()
     
+
+        root = client.get_root_node()
         
-        therm1 = client.get_node('ns=2;s=V1_Therm')
-        therm2 = client.get_node('ns=2;s=V2_Therm')
-        therm3 = client.get_node('ns=2;s=V3_Therm')
+        # print("Root node is: {:s} ".format(str(root)))
 
-        handler_1 = therm_handler()
-        sub_1 = client.create_subscription(500, handler_1)
-        handle_1 = sub_1.subscribe_data_change(therm1)
-
-        handler_2 = therm_handler()
-        sub_2 = client.create_subscription(500, handler_2)
-        handle_2 = sub_2.subscribe_data_change(therm2)
-
-        handler_3 = therm_handler()
-        sub_3 = client.create_subscription(500, handler_3)
-        handle_3 = sub_3.subscribe_data_change(therm3)
+        def browse_recursive(node):
+            for childId in node.get_children():
+                ch = client.get_node(childId)
+                # print(ch.get_node_class())
+                if ch.get_node_class() == ua.NodeClass.Object:
+                    browse_recursive(ch)
+                elif ch.get_node_class() == ua.NodeClass.Variable:
+                    try:
+                        # print("{bn} has value {val}".format(
+                        #     bn=ch.get_browse_name(),
+                        #     val=str(ch.get_value()))
+                        # )
+                        bn=str(ch.get_browse_name())
+                        val=str(ch.get_value())
+                        if bn.find(':Id)') != -1:
+                            if therm_id != '':
+                                insert_value(therm_id, temp, state, target)
+                        if bn.find(':Id)') != -1 or bn.find('Temperature') != -1 or bn.find('State') != -1 or bn.find('Target') != -1:
+                            # print(str(bn)+': '+str(val))
+                            clasify_variables(bn, val)
+                    except ua.uaerrors._auto.BadWaitingForInitialData:
+                        pass
 
         while True:
-           insert_value(therm1_val)
-           insert_value(therm2_val)
-           insert_value(therm3_val)
-           time.sleep(lap)
+            browse_recursive(root)
+            insert_value(therm_id, temp, state, target)
+            time.sleep(lap)
 
-def insert_value(term):
+
+def insert_value(id, temp, state, target):
     conn = psycopg2.connect(CONNECTION)
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO therm (id, datetime, temp, state, target) VALUES ('"+str(term[0])+"', current_timestamp,"+str(term[1])+",'"+str(term[2])+"',"+str(term[5])+")")
+    cursor.execute("INSERT INTO therm (id, datetime, temp, state, target) VALUES ('"+str(id)+"', current_timestamp,"+str(temp)+",'"+str(state)+"',"+str(target)+")")
     conn.commit()
     cursor.close()
-    if term[0] == 'TH1':
-        therm1_val = term
-    elif term[0] == 'TH2':
-        therm2_val = term
-    elif term[0] == 'TH3':
-        therm3_val = term
 
-class therm_handler(object):
-    def datachange_notification(self, node, val, data):
-        insert_value(val)
-        global flag
-        flag = True
+def clasify_variables(bn, val):
+    global therm_id
+    global temp
+    global state
+    global target
+    if bn.find(':Id)') != -1:
+        therm_id = val
+    elif bn.find('Temperature)') != -1:
+        temp = val
+    elif bn.find('State') != -1:
+        state = val
+    elif bn.find('Target') != -1:
+        target = val

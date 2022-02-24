@@ -57,6 +57,9 @@ def start_server(stateMachine, count):
     target = custom_obj_type.add_variable(5, "Target", 0)
     target.set_modelling_rule(True)
     target.set_writable()
+    target = custom_obj_type.add_variable(6, "Power", 0)
+    target.set_modelling_rule(True)
+    target.set_writable()
 
     for l in range(count):
         myobj = node.add_object(id+'{}'.format(str(l+1)), "Therm{}".format(l+1), custom_obj_type.nodeid)
@@ -68,6 +71,12 @@ def start_server(stateMachine, count):
     print("Server started at {}".format(config.URL))
     
     global power_value
+    TARGET = stateMachine[0].target
+    POWER = stateMachine[0].power
+    for n in range(int(count)):
+        var_list[n].target.set_value(TARGET)
+        var_list[n].power.set_value(POWER)
+
     while True:
         for i in range(count):
             ID = stateMachine[i].id
@@ -75,7 +84,11 @@ def start_server(stateMachine, count):
             STATE = stateMachine[i].state
             TEMP_MAX = stateMachine[i].temp_max
             TEMP_MIN = stateMachine[i].temp_min
-            TARGET = stateMachine[i].target
+            TARGET = var_list[i].target.get_value() 
+            stateMachine[i].target = TARGET
+            POWER = var_list[i].power.get_value() 
+            stateMachine[i].power = POWER
+
             print("Server: "+str(ID), str(TEMP), str(STATE), str(TARGET))
 
             var_list[i].therm_id.set_value(ID)
@@ -83,7 +96,6 @@ def start_server(stateMachine, count):
             var_list[i].state.set_value(STATE)
             var_list[i].temp_max.set_value(TEMP_MAX)
             var_list[i].temp_min.set_value(TEMP_MIN)
-            var_list[i].target.set_value(TARGET)
 
         time.sleep(config.server_refresh)
     
@@ -96,6 +108,7 @@ class therm_var:
         self.temp_max = 0
         self.temp_min = 0
         self.target = 0
+        self.power = 0
 
 def add_variables(count, stateMachine, obj_list):
     list = []
@@ -107,6 +120,6 @@ def add_variables(count, stateMachine, obj_list):
         therm_variables.temp_max = obj_list[j].get_child(["3:Temperature_max"])
         therm_variables.temp_min = obj_list[j].get_child(["4:Temperature_min"])
         therm_variables.target = obj_list[j].get_child(["5:Target"])
-        therm_variables.target.set_writable()
+        therm_variables.power = obj_list[j].get_child(["6:Power"])
         list.append(therm_variables)   
     return list
