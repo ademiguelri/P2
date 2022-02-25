@@ -37,7 +37,7 @@ def start_server(stateMachine, count):
     # server.load_certificate("certificate-example.der")
     # server.load_private_key("private-key-example.pem")
 
-    # set all possible endpoint policies for clients to connect through
+    # # set all possible endpoint policies for clients to connect through
     # server.set_security_policy([
     #     # ua.SecurityPolicyType.NoSecurity,
     #     ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
