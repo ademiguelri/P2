@@ -1,7 +1,7 @@
 import pytest
 from warnings import catch_warnings
 import lab.control.stateMachine as stateMachine
-import lab.server
+import lab.server as server
 import random
 import time
 import json
