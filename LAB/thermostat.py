@@ -1,12 +1,12 @@
-from itertools import cycle
+import pytest
 from warnings import catch_warnings
-import control.stateMachine as stateMachine
-import server
+import lab.control.stateMachine as stateMachine
+import lab.server
 import random
 import time
 import json
 from threading import Thread
-import control.config as config
+import lab.control.config as config
 
 class target_comp:
     def __init__(self):

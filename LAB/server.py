@@ -3,8 +3,8 @@ from opcua import Server,ua
 from opcua.server.user_manager import UserManager
 import datetime
 import time
-import control.config as config
-import thermostat
+import lab.control.config as config
+import lab.thermostat
 
 obj_list = []
 var_list = []
