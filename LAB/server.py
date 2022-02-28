@@ -12,18 +12,11 @@ value_list = []
 id = 'ns=2;s=V'
 power_value = True
 
-# users database
-users_db = {
-    'user1': 'passwd1',
-    'user2': 'passwd2',
-    'user3': 'passwd3',
-}
-
 # user manager
 def user_manager(isession, username, password):
     print(isession, username, password)
     isession.user = UserManager.User
-    return username in users_db and password == users_db[username]
+    return username in config.users_db and password == config.users_db[username]
 
 def start_server(stateMachine, count):
     server = Server()
@@ -46,9 +39,6 @@ def start_server(stateMachine, count):
 
     # set the user_manager function
     server.user_manager.set_user_manager(user_manager)
-
-
-
     node =  server.get_objects_node()
     custom_obj_type = node.add_object_type(id, "Thermostats")
 
@@ -77,7 +67,6 @@ def start_server(stateMachine, count):
 
     server.start()
     print("Server started at {}".format(config.URL))
-
 
     global power_value
     TARGET = stateMachine[0].target

@@ -12,3 +12,8 @@ env_temp = 15
 target_server = [15, 15, 15]
 initial_cero = 0.0
 initial_one = 1
+users_db = {
+    'user1': 'passwd1',
+    'user2': 'passwd2',
+    'user3': 'passwd3',
+}

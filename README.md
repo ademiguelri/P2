@@ -1,19 +1,21 @@
 # P2 project
 
-This project is a simulation of a thermostat using python transitions and OPCUA packages and TimescaleDB and Grafana Dockers.
+This project makes server/client connection between n thermostats and a docker with timescaledb.
 
-Thermostat.py creates a instance of the object stateMachine. This instance creates a state machine that will simulate a working thermostat thats oscilates between 16 and 23 grades.
+The connection is made via OPC UA protocol where the server part is sending all information of the thermostats and sending to the client that inserts that into a timescaledb docker.
 
-The information that generates will be send by server.py that is connected with client.py using OPC UA protocols.
+Thermostats are simulated using a state machine, helped by python transitions package.
 
-Once the client had recived the information, it will store in the database that is on the TimescaleDB docker. This information will be visible in Grafana that is hosted on Docker.
+Once timescale is receiving data, these data is visualiced on Grafana.
+
+Thermostat.py creates a instance of the object stateMachine. This instance creates a state machine and will simulate a working thermostat that will warm or cool based on the target temperature.
+
 
 ## Use guide
 
 1. Start docker-compose
 2. Run lab.py
 3. Run app.py
-4. Run manual_control.py
 
 ## Usefull code
 

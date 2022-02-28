@@ -3,6 +3,8 @@ services:
     image: timescale/timescaledb:latest-pg14
     ports: 
       - 5432:5432
+    volumes:
+      - ./timescale/initialize.sh:/docker-entrypoint-initdb.d/init-user-db.sh
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=test
@@ -23,7 +25,14 @@ services:
     networks:
       - gateway
 
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - 82:80
+
 networks:
   gateway:
     driver: bridge
-    

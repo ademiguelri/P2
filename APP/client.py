@@ -18,7 +18,6 @@ temp = ''
 state = ''
 target = ''
 
-
 def start_client():
     therm_list = []
     handler_list = []
@@ -45,7 +44,6 @@ def start_client():
             cursor.execute(query_create_hypertable)
             conn.commit()
             cursor.close()
-    
 
         root = client.get_root_node()
         
@@ -78,7 +76,6 @@ def start_client():
             browse_recursive(root)
             insert_value(therm_id, temp, state, target)
             time.sleep(lap)
-
 
 def insert_value(id, temp, state, target):
     conn = psycopg2.connect(CONNECTION)
