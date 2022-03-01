@@ -13,16 +13,22 @@ Thermostat.py creates a instance of the object stateMachine. This instance creat
 
 ## Use guide
 
-1. Start docker-compose
-2. Run lab.py
-3. Run app.py
++ Start docker-compose
+    * Browse http://localhost:3000/ for Grafana
+    * Browse http://localhost:5050/ for PgAdmin4
+    * Inspect Timescaledb docker to connect services to the gateway
++ Run lab.py
+    * Select cuantity of thermostats
++ Run app.py
++ Use UaExpert to control target and power
 
 ## Usefull code
 
+Visualize docker container IDs:
+    docker ps
+
+Ispect container info:
+    docker inspect <dockerID>
+
 Open postgres terminal inside the docker:
-
     docker exec -it <dockerID> psql -U postgres
-
-Insert data to DB with generate_series:
-
-    insert into  auto(dateTime, info) values (generate_series('2020-01-01'::date, '2020-12-31'::date, INTERVAL '1 day'),generate_series(1,365)*(10 + 10 * random()));
