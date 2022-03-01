@@ -1,12 +1,12 @@
 import pytest
 from warnings import catch_warnings
-import lab.control.stateMachine as stateMachine
-import lab.server as server
+import control.stateMachine as stateMachine
+import server
 import random
 import time
 import json
 from threading import Thread
-import lab.control.config as config
+import control.config as config
 
 class target_comp:
     def __init__(self):

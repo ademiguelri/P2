@@ -1,5 +1,5 @@
 import random
-import lab.control.config as config
+import control.config as config
 from transitions import Machine
 
 class thermostat:

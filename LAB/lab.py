@@ -1,4 +1,3 @@
-from itertools import count
 import thermostat
 
 def main():

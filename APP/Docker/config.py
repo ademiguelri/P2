@@ -7,5 +7,5 @@ URL = "opc.tcp://127.0.0.1:4840"
 client_refresh = 1
 target = 15
 th_selection = -1
-username = 'user1'
-password = 'passwd1'
+usernameOPC = 'user1'
+passwordOPC = 'passwd1'

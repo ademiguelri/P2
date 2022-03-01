@@ -29,8 +29,8 @@ def start_client():
 
     client = Client(config.URL)
     try:
-        client.set_user(config.username)
-        client.set_password(config.password)
+        client.set_user(config.usernameOPC)
+        client.set_password(config.passwordOPC)
         client.connect()
         print("Client connected")
     except:
