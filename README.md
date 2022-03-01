@@ -25,10 +25,13 @@ Thermostat.py creates a instance of the object stateMachine. This instance creat
 ## Usefull code
 
 Visualize docker container IDs:
+
     docker ps
 
 Ispect container info:
+
     docker inspect <dockerID>
 
 Open postgres terminal inside the docker:
+
     docker exec -it <dockerID> psql -U postgres
