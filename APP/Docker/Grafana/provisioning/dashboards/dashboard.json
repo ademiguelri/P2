@@ -106,8 +106,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -221,13 +220,17 @@
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
+          "max": 25,
+          "min": 14,
           "thresholds": {
             "mode": "percentage",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "orange",
@@ -380,8 +383,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -496,12 +498,13 @@
       "fieldConfig": {
         "defaults": {
           "mappings": [],
+          "max": 25,
+          "min": 14,
           "thresholds": {
             "mode": "percentage",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "orange",
@@ -654,8 +657,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -770,12 +772,13 @@
       "fieldConfig": {
         "defaults": {
           "mappings": [],
+          "max": 25,
+          "min": 14,
           "thresholds": {
             "mode": "percentage",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "orange",
@@ -866,8 +869,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1011,6 +1013,6 @@
   "timezone": "",
   "title": "New dashboard",
   "uid": "Icjm2q-nz",
-  "version": 3,
+  "version": 6,
   "weekStart": ""
 }
