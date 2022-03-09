@@ -18,6 +18,9 @@ def user_manager(isession, username, password):
     return username in config.users_db and password == config.users_db[username]
 
 def start_server(stateMachine, count):
+    global power_value
+    TARGET = stateMachine[0].target
+    POWER = stateMachine[0].power
     server = Server()
     server.set_endpoint(config.URL)
 
@@ -26,12 +29,12 @@ def start_server(stateMachine, count):
     # server.load_certificate("certificate-example.der")
     # server.load_private_key("private-key-example.pem")
 
-    # # set all possible endpoint policies for clients to connect through
-    # server.set_security_policy([
-    #     # ua.SecurityPolicyType.NoSecurity,
-    #     ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
-    #     # ua.SecurityPolicyType.Basic256Sha256_Sign,
-    # ])
+    # set all possible endpoint policies for clients to connect through
+    server.set_security_policy([
+        ua.SecurityPolicyType.NoSecurity,
+        # ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
+        # ua.SecurityPolicyType.Basic256Sha256_Sign,
+    ])
 
     # set the security endpoints for identification of clients
     server.set_security_IDs(["Username"])
@@ -67,11 +70,8 @@ def start_server(stateMachine, count):
     server.start()
     print("Server started at {}".format(config.URL))
 
-    global power_value
-    TARGET = stateMachine[0].target
-    POWER = stateMachine[0].power
     for n in range(int(count)):
-        var_list[n].target.set_value(TARGET)
+    #     var_list[n].target.set_value(TARGET)
         var_list[n].power.set_value(POWER)
 
     while True:
@@ -82,7 +82,8 @@ def start_server(stateMachine, count):
             TEMP_MAX = stateMachine[i].temp_max
             TEMP_MIN = stateMachine[i].temp_min
             TARGET = var_list[i].target.get_value() 
-            stateMachine[i].target = TARGET
+            # stateMachine[i].target = TARGET
+            TARGET = stateMachine[i].target
             POWER = var_list[i].power.get_value() 
             stateMachine[i].power = POWER
 
@@ -93,6 +94,8 @@ def start_server(stateMachine, count):
             var_list[i].state.set_value(STATE)
             var_list[i].temp_max.set_value(TEMP_MAX)
             var_list[i].temp_min.set_value(TEMP_MIN)
+            # Random target change
+            var_list[i].target.set_value(TARGET)
 
         time.sleep(config.server_refresh)
     

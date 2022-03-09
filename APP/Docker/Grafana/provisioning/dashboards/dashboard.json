@@ -21,7 +21,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 8,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -53,7 +53,7 @@
             "type": "query"
           }
         ],
-        "executionErrorState": "alerting",
+        "executionErrorState": "keep_state",
         "for": "1m",
         "frequency": "30s",
         "handler": 1,
@@ -100,6 +100,8 @@
             }
           },
           "mappings": [],
+          "max": 25,
+          "min": 14,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -130,7 +132,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -258,7 +261,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": false
       },
-      "pluginVersion": "8.3.6",
+      "pluginVersion": "8.4.0",
       "targets": [
         {
           "datasource": {
@@ -371,6 +374,8 @@
             }
           },
           "mappings": [],
+          "max": 25,
+          "min": 14,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -401,7 +406,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -529,7 +535,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": false
       },
-      "pluginVersion": "8.3.6",
+      "pluginVersion": "8.4.0",
       "targets": [
         {
           "datasource": {
@@ -642,6 +648,8 @@
             }
           },
           "mappings": [],
+          "max": 25,
+          "min": 14,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -672,7 +680,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "targets": [
@@ -800,7 +809,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": false
       },
-      "pluginVersion": "8.3.6",
+      "pluginVersion": "8.4.0",
       "targets": [
         {
           "datasource": {
@@ -948,7 +957,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.3.6",
+      "pluginVersion": "8.4.0",
       "targets": [
         {
           "datasource": {
@@ -988,7 +997,7 @@
     }
   ],
   "refresh": "5s",
-  "schemaVersion": 34,
+  "schemaVersion": 35,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -1002,6 +1011,6 @@
   "timezone": "",
   "title": "New dashboard",
   "uid": "Icjm2q-nz",
-  "version": 44,
+  "version": 3,
   "weekStart": ""
 }

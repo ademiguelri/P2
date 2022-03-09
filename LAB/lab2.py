@@ -1,4 +1,4 @@
-import thermostat
+import thermostat as thermostat
 
 def main():
     print('Insert cuantity of thermostats: ')
